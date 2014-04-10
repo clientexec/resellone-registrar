@@ -80,14 +80,14 @@ class PluginResellOne extends RegistrarPlugin
         $available = $return[$status_key]['#'];
         if ($available == 200 || $available == 210) {
             $status = 0;
-        } 
+        }
         else if ($available == 211 || $available == 212) {
             $status = 1;
         } else {
             $status = 5;
         }
-        
-        $domains[] = array("tld"=>$params['sld'],"domain"=>$params['tld'],"status"=>$status);
+
+        $domains[] = array("tld"=>$params['tld'],"domain"=>$params['sld'],"status"=>$status);
         return array("result"=>$domains);
     }
 
