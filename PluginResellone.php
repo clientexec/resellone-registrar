@@ -10,39 +10,34 @@ class PluginResellOne extends RegistrarPlugin
     function getVariables()
     {
         $variables = array(
-            /*T*/'Plugin Name'/*/T*/ => array (
+            lang('Plugin Name') => array (
                                 'type'          =>'hidden',
-                                'description'   =>/*T*/'How CE sees this plugin (not to be confused with the Signup Name)'/*/T*/,
-                                'value'         =>/*T*/'ResellOne'/*/T*/
+                                'description'   =>lang('How CE sees this plugin (not to be confused with the Signup Name)'),
+                                'value'         =>lang('ResellOne')
                                ),
-            /*T*/ /*'Use testing server'*/ /*/T*/ /* => array(
-                                'type'          =>'yesno',
-                                'description'   =>*/ /*T*/ /*'Select Yes if you wish to use ResellOne\'s testing environment, so that transactions are not actually made.'*/ /*/T*/ /*,
-                                'value'         => 0
-                               ),*/
-            /*T*/'Username'/*/T*/ => array(
+            lang('Username') => array(
                                 'type'          => 'text',
-                                'description'   => /*T*/'Enter your username for your ResellOne reseller account.'/*/T*/,
+                                'description'   => lang('Enter your username for your ResellOne reseller account.'),
                                 'value'         => '',
                             ),
-            /*T*/'Private Key'/*/T*/  => array(
+            lang('Private Key')  => array(
                                 'type'          => 'password',
-                                'description'   => /*T*/'Enter your ResellOne reseller private key.'/*/T*/,
+                                'description'   => lang('Enter your ResellOne reseller private key.'),
                                 'value'         => '',
                             ),
-            /*T*/'Supported Features'/*/T*/  => array(
+            lang('Supported Features')  => array(
                                 'type'          => 'label',
-                                'description'   => '* './*T*/'TLD Lookup'/*/T*/.'<br>* './*T*/'Domain Registration'/*/T*/.' <br>',
+                                'description'   => '* '.lang('TLD Lookup').'<br>* '.lang('Domain Registration').' <br>',
                                 'value'         => ''
                                 ),
-           /*T*/'Actions'/*/T*/ => array (
+           lang('Actions') => array (
                                 'type'          => 'hidden',
-                                'description'   => /*T*/'Current actions that are active for this plugin (when a domain isn\'t registered)'/*/T*/,
+                                'description'   => lang('Current actions that are active for this plugin (when a domain isn\'t registered)'),
                                 'value'         => 'Register'
                                 ),
-            /*T*/'Registered Actions'/*/T*/ => array (
+            lang('Registered Actions') => array (
                                 'type'          => 'hidden',
-                                'description'   => /*T*/'Current actions that are active for this plugin (when a domain is registered)'/*/T*/,
+                                'description'   => lang('Current actions that are active for this plugin (when a domain is registered)'),
                                 'value'         => 'Cancel',
                                 )
         );
