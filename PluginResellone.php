@@ -7,6 +7,12 @@ require_once dirname(__FILE__).'/class.resellone.php';
 */
 class PluginResellOne extends RegistrarPlugin
 {
+    public $features = [
+        'nameSuggest' => false,
+        'importDomains' => false,
+        'importPrices' => false,
+    ];
+
     function getVariables()
     {
         $variables = array(
@@ -49,9 +55,11 @@ class PluginResellOne extends RegistrarPlugin
     {
         $host = 'resellers.resellone.net';
 
-        $resellone = new ResellOne($host,
-                                   $params['Username'],
-                                   $params['Private Key']);
+        $resellone = new ResellOne(
+            $host,
+            $params['Username'],
+            $params['Private Key']
+        );
 
         $return = $resellone->lookup_domain(strtolower($params['sld'].".".$params['tld']));
 
@@ -61,11 +69,16 @@ class PluginResellOne extends RegistrarPlugin
         }
 
         // Check for errors
-        foreach ($return as $key=>$val)
-        {
-            if ($val['@']['key'] == 'response_code') $status_key = $key;
-            if ($val['@']['key'] == 'is_success') $success_key = $key;
-            if ($val['@']['key'] == 'response_text') $status_text = $key;
+        foreach ($return as $key => $val) {
+            if ($val['@']['key'] == 'response_code') {
+                $status_key = $key;
+            }
+            if ($val['@']['key'] == 'is_success') {
+                $success_key = $key;
+            }
+            if ($val['@']['key'] == 'response_text') {
+                $status_text = $key;
+            }
         }
         if ($return[$success_key]['#'] != 1) {
             CE_Lib::log(4, "ResellOne Lookup Failed: ".$return[$status_text]['#']);
@@ -75,8 +88,7 @@ class PluginResellOne extends RegistrarPlugin
         $available = $return[$status_key]['#'];
         if ($available == 200 || $available == 210) {
             $status = 0;
-        }
-        else if ($available == 211 || $available == 212) {
+        } elseif ($available == 211 || $available == 212) {
             $status = 1;
         } else {
             $status = 5;
@@ -94,28 +106,32 @@ class PluginResellOne extends RegistrarPlugin
     function doRegister($params)
     {
         $userPackage = new UserPackage($params['userPackageId']);
-        $orderid = $this->registerDomain($this->buildRegisterParams($userPackage,$params));
-        $userPackage->setCustomField("Registrar Order Id",$userPackage->getCustomField("Registrar").'-'.$orderid);
+        $orderid = $this->registerDomain($this->buildRegisterParams($userPackage, $params));
+        $userPackage->setCustomField("Registrar Order Id", $userPackage->getCustomField("Registrar").'-'.$orderid);
         return true;
     }
 
     function registerDomain($params)
     {
             $host = 'resellers.resellone.net';
-            if (isset($params['NS1'])) {
-               $params['Custom NS'] = 1;
-            } else {
-                $params['Custom NS'] = 0;
-            }
+        if (isset($params['NS1'])) {
+            $params['Custom NS'] = 1;
+        } else {
+            $params['Custom NS'] = 0;
+        }
 
-        $resellone = new ResellOne($host,
-                                   $params['Username'],
-                                   $params['Private Key']);
+        $resellone = new ResellOne(
+            $host,
+            $params['Username'],
+            $params['Private Key']
+        );
 
 
         $params['domain'] = strtolower($params['sld'].".".$params['tld']);
-        $params['RegistrantPhone'] = $this->_plugin_resellone_validatePhone($params['RegistrantPhone'],$params['RegistrantCountry']);
-        if ($params['RegistrantOrganizationName'] == "") $params['RegistrantOrganizationName'] = $params['RegistrantFirstName']." ".$params['RegistrantLastName'];
+        $params['RegistrantPhone'] = $this->_plugin_resellone_validatePhone($params['RegistrantPhone'], $params['RegistrantCountry']);
+        if ($params['RegistrantOrganizationName'] == "") {
+            $params['RegistrantOrganizationName'] = $params['RegistrantFirstName']." ".$params['RegistrantLastName'];
+        }
 
         $query = "SELECT id from customuserfields where type='8'";
         $result = $this->db->query($query);
@@ -128,8 +144,11 @@ class PluginResellOne extends RegistrarPlugin
         $query = "SELECT value FROM user_customuserfields WHERE customid=? AND userid=?";
         $result = $this->db->query($query, $fieldid, $userid);
         list($lang) = $result->fetch();
-        if (strtolower($lang) == 'french') $params['RegistrantLanguage'] = 'FR';
-        else $params['RegistrantLanguage'] = 'EN';
+        if (strtolower($lang) == 'french') {
+            $params['RegistrantLanguage'] = 'FR';
+        } else {
+            $params['RegistrantLanguage'] = 'EN';
+        }
 
 
         $return = $resellone->register_domain($params);
@@ -138,12 +157,19 @@ class PluginResellOne extends RegistrarPlugin
             CE_Lib::log(4, "ResellOne Error: Ensure port 52443 is open and PHP is compiled with OpenSSL.");
             throw new Exception('ResellOne Error: Ensure port 52443 is open and PHP is compiled with OpenSSL.', EXCEPTION_CODE_CONNECTION_ISSUE);
         }
-        foreach ($return as $key=>$val)
-        {
-            if ($val['@']['key'] == 'response_code') $status_key = $key;
-            if ($val['@']['key'] == 'is_success') $success_key = $key;
-            if ($val['@']['key'] == 'response_text') $status_text = $key;
-            if ($val['@']['key'] == 'attributes') $attributes_key = $key;
+        foreach ($return as $key => $val) {
+            if ($val['@']['key'] == 'response_code') {
+                $status_key = $key;
+            }
+            if ($val['@']['key'] == 'is_success') {
+                $success_key = $key;
+            }
+            if ($val['@']['key'] == 'response_text') {
+                $status_text = $key;
+            }
+            if ($val['@']['key'] == 'attributes') {
+                $attributes_key = $key;
+            }
         }
 
         CE_Lib::log(4, "ResellOne Registration Response: ".$return[$status_text]['#']);
@@ -151,14 +177,20 @@ class PluginResellOne extends RegistrarPlugin
         if (isset($attributes_key)) {
             $attributes = $return[$attributes_key]['#']['dt_assoc'][0]['#']['item'];
             if ($return[$success_key]['#'] == 1) {
-                foreach ($attributes as $key=>$val) {
-                    if ($val['@']['key'] == 'id') $regId = $val['#'];
+                foreach ($attributes as $key => $val) {
+                    if ($val['@']['key'] == 'id') {
+                        $regId = $val['#'];
+                    }
                 }
             }
         }
         $code = $return[$status_key]['#'];
-        if ($code == 210 || $code == 200 || $code == 250) return array($regId);
-        if ($code == 485) return array(0);
+        if ($code == 210 || $code == 200 || $code == 250) {
+            return array($regId);
+        }
+        if ($code == 485) {
+            return array(0);
+        }
 
         throw new Exception("Domain registration failed: ".$return[$status_text]['#']);
     }
@@ -186,67 +218,67 @@ class PluginResellOne extends RegistrarPlugin
         return "+$code.$phone";
     }
 
-    function getContactInformation ($params)
+    function getContactInformation($params)
     {
         throw new Exception('Getting Contact Information is not supported in this plugin.');
     }
 
-    function setContactInformation ($params)
+    function setContactInformation($params)
     {
         throw new Exception('Method setContactInformation() has not been implemented yet.');
     }
 
-    function getNameServers ($params)
+    function getNameServers($params)
     {
         throw new Exception('Getting Name Server Records is not supported in this plugin.', EXCEPTION_CODE_NO_EMAIL);
     }
 
-    function setNameServers ($params)
+    function setNameServers($params)
     {
         throw new Exception('Method setNameServers() has not been implemented yet.');
     }
 
-    function checkNSStatus ($params)
+    function checkNSStatus($params)
     {
         throw new Exception('Method checkNSStatus() has not been implemented yet.');
     }
 
-    function registerNS ($params)
+    function registerNS($params)
     {
         throw new Exception('Method registerNS() has not been implemented yet.');
     }
 
-    function editNS ($params)
+    function editNS($params)
     {
         throw new Exception('Method editNS() has not been implemented yet.');
     }
 
-    function deleteNS ($params)
+    function deleteNS($params)
     {
         throw new Exception('Method deleteNS() has not been implemented yet.');
     }
 
-    function getGeneralInfo ($params)
+    function getGeneralInfo($params)
     {
         throw new Exception('Method getGeneralInfo() has not been implemented yet.', EXCEPTION_CODE_NO_EMAIL);
     }
 
-    function setAutorenew ($params)
+    function setAutorenew($params)
     {
         throw new MethodNotImplemented('Method setAutorenew() has not been implemented yet.');
     }
 
-    function getRegistrarLock ($params)
+    function getRegistrarLock($params)
     {
         throw new Exception('Method getRegistrarLock() has not been implemented yet.', EXCEPTION_CODE_NO_EMAIL);
     }
 
-    function setRegistrarLock ($params)
+    function setRegistrarLock($params)
     {
         throw new Exception('Method setRegistrarLock() has not been implemented yet.');
     }
 
-    function sendTransferKey ($params)
+    function sendTransferKey($params)
     {
         throw new Exception('Method sendTransferKey() has not been implemented yet.');
     }
@@ -259,5 +291,3 @@ class PluginResellOne extends RegistrarPlugin
         throw new MethodNotImplemented('Method getTransferStatus has not been implemented yet.');
     }
 }
-
-?>

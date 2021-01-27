@@ -23,7 +23,7 @@ class ResellOne
      * @param string $key The resellers private key
      * @return ResellOne An ResellOne object
      */
-    function ResellOne($host, $user, $key)
+    function __construct($host, $user, $key)
     {
         $this->host = $host;
         $this->user = $user;
